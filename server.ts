@@ -5,7 +5,13 @@ import { GoogleGenAI } from "@google/genai";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  // 환경 변수에 PORT가 있으면 쓰고(Firebase용), 없으면 8080을 기본값으로 사용
+  const PORT = process.env.PORT || 8080;
+  
+  // '0.0.0.0'을 추가해야 외부(Firebase)에서 내 서버로 접속할 수 있습니다.
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 
   app.use(express.json({ limit: '50mb' }));
 
