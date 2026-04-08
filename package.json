@@ -7,6 +7,7 @@
     "dev": "tsx server.ts",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "npx serve -s dist -l 8080", 
     "lint": "tsc --noEmit"
   },
   "dependencies": {
