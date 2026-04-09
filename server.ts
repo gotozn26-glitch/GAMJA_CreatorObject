@@ -15,7 +15,24 @@ async function startServer() {
   // [1순위] API 라우트 - 정적 파일보다 무조건 위에 있어야 함
   app.post("/api/generate", async (req, res) => {
     // ... 기존 제미나이 로직 ...
-    res.json({ success: true });
+      try {
+      const { keyword } = req.body;
+      
+      // 1. 여기서 제미나이를 호출해서 결과를 받아오죠? (예시 변수명: result)
+      const result = await generateImageWithGemini(keyword); 
+  
+      // 2. [수정 전] res.json({ success: true }); <--- 이렇게만 되어 있을 거예요.
+      
+      // 3. [수정 후] 결과물(이미지 URL 등)을 박스에 담아서 보냅니다!
+      res.json({
+        success: true,
+        imageUrl: result.url, // 제미나이가 준 이미지 주소
+        data: result          // 혹은 결과 데이터 전체
+      });
+  
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
   });
 
   // [2순위] 정적 파일 설정
