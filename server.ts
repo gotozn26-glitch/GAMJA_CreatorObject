@@ -23,7 +23,7 @@ async function startServer() {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 
-  const PORT = process.env.PORT || 8080;
+  const PORT = Number(process.env.PORT) || 8080;
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`서버가 포트 ${PORT}에서 살아났습니다!`);
   });
