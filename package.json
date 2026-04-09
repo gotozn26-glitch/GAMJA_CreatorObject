@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "tsx server.ts",
+    "build": "vite build && tsc server.ts --esModuleInterop --skipLibCheck --outDir dist",
+    "start": "node dist/server.cjs", 
     "lint": "tsc --noEmit"
   },
   "dependencies": {
