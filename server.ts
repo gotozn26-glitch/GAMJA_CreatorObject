@@ -8,7 +8,7 @@ async function startServer() {
   app.use(express.json({ limit: '50mb' }));
 
   // [1순위] API 경로는 무조건 '맨 위'에!
-  app.post("/api/generate", async (req, res) => {
+  app.post("/api-v1/generate", async (req, res) => {
     console.log("AI 생성 시작..."); // 이게 로그에 찍혀야 성공입니다.
     // ... 제미나이 로직 ...
     res.json({ url: "결과물" });
