@@ -4,6 +4,9 @@ import path from "path";
 // ... 기타 import
 
 async function startServer() {
+
+  const PORT = parseInt(process.env.PORT || "8080", 10);
+  
   const app = express();
   app.use(express.json({ limit: '50mb' }));
 
