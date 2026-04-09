@@ -47,7 +47,7 @@ const AppContent: React.FC = () => {
 
   const generate = async () => {
     if (!keyword.trim() || status === 'generating') return;
-    
+    console.log("입구 통과!");
     setStatus('generating');
     setError(null);
     setResults([]);
