@@ -1,18 +1,21 @@
 {
+  "name": "오브젝트-생성기",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build",
-    "start": "tsx server.ts", 
+    "start": "tsx server.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "tsx": "^4.21.0",
-    "@google/genai": "^1.35.0",
     "express": "^5.2.1",
+    "@google/genai": "^1.35.0",
+    "firebase": "^12.11.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "firebase": "^12.11.0",
     "react-firebase-hooks": "^5.1.1"
   },
   "devDependencies": {
