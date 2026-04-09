@@ -1,61 +1,106 @@
 import express from "express";
 import path from "path";
-import { fileURLToPath } from "url";
 import { GoogleGenAI } from "@google/genai";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
+  // Firebase App Hosting 환경에서는 반드시 process.env.PORT(8080)를 사용해야 합니다.
   const PORT = process.env.PORT || 8080;
 
   app.use(express.json({ limit: '50mb' }));
 
-  // [1순위] API 라우트 - 정적 파일보다 무조건 위에 있어야 함
+  // [1순위] Gemini API Proxy Route (감자님의 소중한 로직)
   app.post("/api/generate", async (req, res) => {
-    // ... 기존 제미나이 로직 ...
-      try {
-      const { keyword } = req.body;
-      
-      // 1. 여기서 제미나이를 호출해서 결과를 받아오죠? (예시 변수명: result)
-      const result = await generateImageWithGemini(keyword); 
-  
-      // 2. [수정 전] res.json({ success: true }); <--- 이렇게만 되어 있을 거예요.
-      
-      // 3. [수정 후] 결과물(이미지 URL 등)을 박스에 담아서 보냅니다!
-      res.json({
-        success: true,
-        imageUrl: result.url, // 제미나이가 준 이미지 주소
-        data: result          // 혹은 결과 데이터 전체
+    const { keyword, styleSuffix, referenceImageBase64, variationIndex } = req.body;
+    
+    if (!keyword || !styleSuffix) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "GEMINI_API_KEY is not configured on the server." });
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
+    try {
+      // 1. 키워드 번역 및 정제
+      const translationResponse = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: `You are a creative prompt engineer for an AI image generator.
+        Translate the Korean word "${keyword}" into a cute, toy-like English visual description.
+        Strict Rules:
+        1. If the word is "주사위" or relates to "Dice", translate it as "a cute decorative toy cube with soft rounded edges". NEVER use the word 'dice' or 'gambling'.
+        2. Describe the object as a simplified, chunky, and adorable miniature toy version.
+        3. Focus on "kawaii" proportions.
+        4. Output ONLY the English description.`,
       });
-  
-    } catch (error) {
-      res.status(500).json({ success: false, error: error.message });
+      
+      const safeVisualDescription = translationResponse.text?.trim().replace(/["'.]/g, '') || keyword;
+
+      // 2. 이미지 생성
+      const viewpoints = [
+        "straight-on eye-level studio portrait view", 
+        "charming high-angle three-quarter view looking down", 
+        "playful low-angle view looking up"
+      ];
+      const selectedView = viewpoints[variationIndex % viewpoints.length] || viewpoints[0];
+
+      const fullPrompt = `A high-quality 3D digital asset of a charming miniature toy version of ${safeVisualDescription}.
+      Style & Material: ${styleSuffix}. 
+      Background: ESSENTIAL - Solid, pure, clean flat WHITE background. NO shadows on the floor, NO horizon line.
+      Detail: Focus intensely on the tactile surface qualities (fabric, glass, or clay textures).
+      Composition: ${selectedView}, perfectly centered.`;
+
+      const parts: any[] = [{ text: fullPrompt }];
+      
+      if (referenceImageBase64) {
+        const base64Data = referenceImageBase64.split(',')[1] || referenceImageBase64;
+        parts.unshift({
+          inlineData: { data: base64Data, mimeType: 'image/png' }
+        });
+      }
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: { parts },
+        config: { imageConfig: { aspectRatio: "1:1" } }
+      });
+
+      if (!response.candidates?.[0]?.content?.parts) {
+        return res.status(403).json({ error: 'AI 안전 필터에 의해 생성이 제한되었습니다.' });
+      }
+
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          // 🔥 여기서 JSON 응답을 보냅니다!
+          return res.json({ url: `data:image/png;base64,${part.inlineData.data}` });
+        }
+      }
+      
+      res.status(500).json({ error: '이미지 생성 데이터가 없습니다.' });
+    } catch (error: any) {
+      console.error("Gemini Server Error:", error);
+      res.status(500).json({ error: error.message || "생성에 실패했습니다." });
     }
   });
 
-  // [2순위] 정적 파일 설정
-  // process.cwd()는 배포 서버의 루트(/workspace)를 가리킵니다.
+  // [2순위] 정적 파일 설정 (배포용)
   const distPath = path.resolve(process.cwd(), "dist");
-  
-  // 중요: express.static이 'dist' 폴더 내부를 직접 바라보게 합니다.
   app.use(express.static(distPath));
 
-  // [3순위] SPA 대응 - Express 5에서 가장 안전한 정규식 방식
-  // 브라우저가 직접 주소를 치고 들어오거나 새로고침할 때 index.html을 보내줍니다.
+  // [3순위] SPA 대응 (Express 5 에러 방지 정규식)
   app.get(/.*/, (req, res) => {
-    // 만약 요청한 경로에 실제 파일이 존재하면(예: .js, .css) express.static이 먼저 처리합니다.
-    // 여기까지 내려왔다는 건 파일을 못 찾았다는 뜻이므로 index.html을 보냅니다.
     res.sendFile(path.join(distPath, "index.html"), (err) => {
       if (err) {
-        res.status(404).send("Build files not found in dist folder.");
+        res.status(404).send("Build files not found.");
       }
     });
   });
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[OK] Server listening on port ${PORT}`);
+    console.log(`Server is listening on port ${PORT}`);
   });
 }
 
