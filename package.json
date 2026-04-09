@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build",
-    "start": "tsx server.ts",
-    "lint": "tsc --noEmit"
+    "start": "tsx server.ts" 
   },
   "dependencies": {
     "tsx": "^4.21.0",
@@ -15,8 +14,7 @@
     "@google/genai": "^1.35.0",
     "firebase": "^12.11.0",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-firebase-hooks": "^5.1.1"
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
