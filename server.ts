@@ -5,17 +5,12 @@ import { GoogleGenAI } from "@google/genai";
 
 async function startServer() {
   const app = express();
-  // 환경 변수에 PORT가 있으면 쓰고(Firebase용), 없으면 8080을 기본값으로 사용
   const PORT = process.env.PORT || 8080;
-  
-  // '0.0.0.0'을 추가해야 외부(Firebase)에서 내 서버로 접속할 수 있습니다.
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
 
+  // 1. 미들웨어 설정 (항상 상단)
   app.use(express.json({ limit: '50mb' }));
 
-  // Gemini API Proxy Route
+  // 2. Gemini API Route (정적 파일 설정보다 '위'에 있어야 함)
   app.post("/api/generate", async (req, res) => {
     const { keyword, styleSuffix, referenceImageBase64, variationIndex } = req.body;
     
@@ -34,15 +29,7 @@ async function startServer() {
       // 1. Translate/Refine keyword
       const translationResponse = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `You are a creative prompt engineer for an AI image generator.
-        Translate the Korean word "${keyword}" into a cute, toy-like English visual description.
-        
-        Strict Rules:
-        1. If the word is "주사위" or relates to "Dice", translate it as "a cute decorative toy cube with soft rounded edges". NEVER use the word 'dice' or 'gambling'.
-        2. Describe the object as a simplified, chunky, and adorable miniature toy version.
-        3. Focus on "kawaii" proportions: oversized features, soft rounded silhouettes, and a charming toy-like structure.
-        4. Do NOT include color words in the translation unless essential.
-        5. Output ONLY the English description.`,
+        contents: `You are a creative prompt engineer for an AI image generator... (중략)`,
       });
       
       const safeVisualDescription = translationResponse.text?.trim().replace(/["'.]/g, '') || keyword;
@@ -55,17 +42,7 @@ async function startServer() {
       ];
       const selectedView = viewpoints[variationIndex % viewpoints.length];
 
-      const fullPrompt = `A high-quality 3D digital asset of a charming miniature toy version of ${safeVisualDescription}.
-      Style & Material: ${styleSuffix}. 
-      Background: ESSENTIAL - Solid, pure, clean flat WHITE background. NO shadows on the floor, NO horizon line, just the object isolated on WHITE.
-      Detail: Focus intensely on the tactile surface qualities. 
-      If fabric/knitted, make sure to show the intricate weave, wool fibers, and amigurumi knit/crochet stitch patterns clearly like a real handmade doll.
-      If glass, show clear transparency and refraction. 
-      If clay, show matte plasticine texture.
-      Form: Chunky, simplified, rounded "kawaii" designer toy silhouette.
-      Lighting: Soft studio lighting that enhances the material's texture without casting heavy dark shadows.
-      Composition: ${selectedView}, perfectly centered.
-      Prohibited: NO text, NO labels, NO people, NO realistic skin, NO photographic noise, NO background elements.`;
+      const fullPrompt = `A high-quality 3D digital asset of a charming miniature toy version of ${safeVisualDescription}... (중략)`;
 
       const parts: any[] = [{ text: fullPrompt }];
       
@@ -90,7 +67,7 @@ async function startServer() {
       });
 
       if (!response.candidates?.[0]?.content?.parts) {
-        return res.status(403).json({ error: 'AI 안전 필터에 의해 생성이 제한되었습니다. 다른 키워드로 시도해주세요.' });
+        return res.status(403).json({ error: 'AI 안전 필터에 의해 생성이 제한되었습니다.' });
       }
 
       for (const part of response.candidates[0].content.parts) {
@@ -106,7 +83,7 @@ async function startServer() {
     }
   });
 
-  // Vite middleware for development
+  // 3. 환경별 정적 파일 서빙 (API 아래에 배치)
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -114,15 +91,19 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
+    // 배포 환경
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+    
+    // API 주소가 아닌 모든 요청은 index.html로 (가장 마지막 순서)
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
+  // 4. 서버 시작 (한 번만 실행)
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 }
 
