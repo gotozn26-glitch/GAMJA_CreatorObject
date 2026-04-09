@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import fs from "fs"; // 파일 시스템 체크용 추가
 import { GoogleGenAI } from "@google/genai";
 
 async function startServer() {
@@ -9,35 +8,33 @@ async function startServer() {
 
   app.use(express.json({ limit: '50mb' }));
 
-  // [1] API
-  app.post("/api/generate", async (req, res) => { /* ... 로직 ... */ });
+  // [1순위] API - 문자열로 명확히 지정
+  app.post("/api/generate", async (req, res) => {
+    // ... 감자님의 제미나이 로직 ...
+    res.json({ success: true });
+  });
 
-  // [2] 정적 파일 경로 상세 진단
+  // [2순위] 정적 파일 설정
   const distPath = path.resolve(process.cwd(), "dist");
-  
-  // 로그에 폴더 존재 여부 출력 (이걸 로그 서버에서 확인해야 합니다!)
-  if (fs.existsSync(distPath)) {
-    console.log("✅ dist folder found at:", distPath);
-    console.log("📁 files in dist:", fs.readdirSync(distPath));
-  } else {
-    console.error("❌ dist folder NOT FOUND at:", distPath);
-  }
-
   app.use(express.static(distPath));
 
-  // [3] SPA 대응 (Express 5 문법)
-  app.get("(.*)", (req, res) => {
-    const indexPath = path.join(distPath, "index.html");
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      res.status(404).send("index.html not found in dist folder.");
-    }
+  // [3순위] SPA 대응 - Express 5 에러를 완벽히 피하는 정규식 방식
+  // 문자열 '(.*)' 대신 정규식 객체 /.*/ 를 사용합니다. 
+  // 이렇게 하면 "Unexpected (" 에러가 원천 차단됩니다.
+  app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"), (err) => {
+      if (err) {
+        res.status(404).send("Build files not found.");
+      }
+    });
   });
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server listening on port ${PORT}`);
+    console.log(`[DEPLOY SUCCESS] Server listening on port ${PORT}`);
   });
 }
 
-startServer().catch(console.error);
+startServer().catch(err => {
+  console.error("Critical Start Error:", err);
+  process.exit(1);
+});
