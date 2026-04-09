@@ -7,7 +7,7 @@ export class GeminiService {
     variationIndex: number = 0
   ): Promise<string> {
     try {
-      const response = await fetch('/api-v1/generate', {
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
