@@ -6,6 +6,4 @@ runConfig:
   memoryMiB: 512
 env:
   - variable: GEMINI_API_KEY
-    # Firebase Secret Manager를 쓰지 않는다면 직접 값을 넣거나, 
-    # 콘솔에서 설정한 변수를 가져오도록 세팅합니다.
     availability: ["BUILD", "RUNTIME"]
