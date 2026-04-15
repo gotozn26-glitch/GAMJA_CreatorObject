@@ -30,7 +30,7 @@ const AdBanner = () => {
   );
 };
 
-export default AdBanner;
+/* export default AdBanner; */
 
 /* --- google adsense banner end --- */
 
