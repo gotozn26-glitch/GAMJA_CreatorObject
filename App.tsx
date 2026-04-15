@@ -4,6 +4,37 @@ import { STYLES } from './constants';
 import { StyleConfig, GeneratedVariation, GenerationStatus } from './types';
 import { geminiService } from './services/geminiService';
 
+
+/* --- google adsense banner start --- */
+import { useEffect } from 'react';
+
+const AdBanner = () => {
+  useEffect(() => {
+    try {
+      // @ts-ignore
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+      console.error("AdSense error", e);
+    }
+  }, []);
+
+  return (
+    <div style={{ textAlign: 'center', margin: '20px 0', minHeight: '100px' }}>
+      <ins className="adsbygoogle"
+           style={{ display: 'block' }}
+           data-ad-client="ca-pub-9680572306636399"
+           data-ad-slot="9414681583"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+  );
+};
+
+export default AdBanner;
+
+/* --- google adsense banner end --- */
+
+
 const AppContent: React.FC = () => {
   const [selectedStyle, setSelectedStyle] = useState<StyleConfig>(STYLES[0]);
   const [keyword, setKeyword] = useState('');
