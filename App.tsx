@@ -216,6 +216,10 @@ const AppContent: React.FC = () => {
               )}
               <span>{status === 'generating' ? 'GENERATING...' : 'GENERATE ARTIFACT'}</span>
             </button>
+              {/* ⭐️ 여기에 광고 배너를 넣으세요! */}
+              <div className="mt-6"> 
+                <AdBanner />
+              </div>
           </div>
         </aside>
 
