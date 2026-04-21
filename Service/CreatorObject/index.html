@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta name="google-adsense-account" content="ca-pub-9680572306636399">
+    <title>GAMJA OBJECT | AI Creative Workbench</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9680572306636399" crossorigin="anonymous"></script>
+    
+    <style>
+        :root {
+            --whisk-yellow: #FFD600;
+            --whisk-bg: #ECECEC;
+            --whisk-black: #000000;
+            --whisk-border: rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--whisk-bg);
+            color: var(--whisk-black);
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+        }
+        .whisk-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1.5px dashed var(--whisk-border);
+            border-radius: 1.5rem;
+            transition: all 0.2s ease;
+        }
+        .whisk-card:hover {
+            border-color: var(--whisk-black);
+        }
+        .whisk-card.active {
+            border-style: solid;
+            border-color: var(--whisk-black);
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .style-item.active {
+            background-color: var(--whisk-yellow);
+            border: 1.5px solid var(--whisk-black);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .generate-btn {
+            background: var(--whisk-black);
+            color: white;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .generate-btn:hover {
+            background: #222;
+            transform: translateY(-2px);
+        }
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        .object-cover-contain {
+            object-fit : contain;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.35.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+<script type="module" src="./index.tsx"></script>
+</body>
+</html>

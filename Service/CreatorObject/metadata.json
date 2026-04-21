@@ -1,0 +1,7 @@
+{
+  "name": "오브젝트 생성기",
+  "description": "An AI-powered object generator that transforms keywords into stylized 3D objects and illustrations based on selected themes.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
