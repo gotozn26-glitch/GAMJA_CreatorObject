@@ -17,7 +17,7 @@
     "react-dom": "^19.2.3",
     "react-firebase-hooks": "^5.1.1",
     "@types/express": "^5.0.6",
-    "framer-motion": "^12.0.0"  // <-- 이 줄을 추가하세요!
+    "framer-motion": "^12.0.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",
