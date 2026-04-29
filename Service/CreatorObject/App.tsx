@@ -132,21 +132,22 @@ const AppContent: React.FC = () => {
     if (file) processFile(file);
   };
 
-  const showInterstitialAd = async () => {
-    await new Promise<void>((resolve) => {
+  const showInterstitialAd = async (): Promise<boolean> => {
+    return new Promise<boolean>((resolve) => {
       const invokeAdBreak = () => {
         const adBreak = window.adBreak;
         if (typeof adBreak !== 'function') {
-          resolve();
+          resolve(false);
           return;
         }
 
         let settled = false;
+        let adStarted = false;
         const done = () => {
           if (settled) return;
           settled = true;
           setIsAdPlaying(false);
-          resolve();
+          resolve(adStarted);
         };
 
         const timeoutId = window.setTimeout(done, 12000);
@@ -155,7 +156,10 @@ const AppContent: React.FC = () => {
           adBreak({
             type: 'browse',
             name: 'generate-artifact',
-            beforeAd: () => setIsAdPlaying(true),
+            beforeAd: () => {
+              adStarted = true;
+              setIsAdPlaying(true);
+            },
             afterAd: () => {
               window.clearTimeout(timeoutId);
               done();
@@ -187,7 +191,7 @@ const AppContent: React.FC = () => {
 
         if (Date.now() >= waitUntil) {
           window.clearInterval(poll);
-          resolve();
+          resolve(false);
         }
       }, 100);
     });
@@ -229,9 +233,21 @@ const AppContent: React.FC = () => {
 
   const generate = async () => {
     if (!keyword.trim() || status === 'generating' || isAdPlaying) return;
-    if (adsenseClientId && isAdSdkReady) {
-      await showInterstitialAd();
+    setError(null);
+
+    if (!adsenseClientId || !isAdSdkReady) {
+      setStatus('error');
+      setError('광고를 불러오지 못해 생성이 차단되었습니다. ADSENSE_CLIENT_ID 및 AdSense 노출 상태를 확인해 주세요.');
+      return;
     }
+
+    const adShown = await showInterstitialAd();
+    if (!adShown) {
+      setStatus('error');
+      setError('광고가 표시되지 않아 생성을 중단했습니다. 광고가 표시된 뒤 다시 시도해 주세요.');
+      return;
+    }
+
     await runGeneration();
   };
 
