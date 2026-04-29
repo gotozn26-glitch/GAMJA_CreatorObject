@@ -15,6 +15,7 @@ declare global {
     };
     adsbygoogle?: any[];
     adBreak?: (options: Record<string, unknown>) => void;
+    adConfig?: (options: Record<string, unknown>) => void;
   }
 }
 
@@ -57,6 +58,7 @@ const AppContent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [adsenseClientId, setAdsenseClientId] = useState<string | null>(null);
+  const [isAdSdkReady, setIsAdSdkReady] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -66,10 +68,37 @@ const AppContent: React.FC = () => {
 
     setAdsenseClientId(clientId);
 
+    if (typeof window.adBreak === 'function') {
+      setIsAdSdkReady(true);
+      try {
+        window.adConfig?.({
+          preloadAdBreaks: 'on',
+          sound: 'on',
+        });
+      } catch (e) {
+        console.error('adConfig init error:', e);
+      }
+      return;
+    }
+
     const script = document.createElement('script');
     script.async = true;
     script.crossOrigin = 'anonymous';
     script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(clientId)}`;
+    script.onload = () => {
+      setIsAdSdkReady(typeof window.adBreak === 'function');
+      try {
+        window.adConfig?.({
+          preloadAdBreaks: 'on',
+          sound: 'on',
+        });
+      } catch (e) {
+        console.error('adConfig init error:', e);
+      }
+    };
+    script.onerror = () => {
+      setIsAdSdkReady(false);
+    };
     document.head.appendChild(script);
   }, []);
 
@@ -105,41 +134,62 @@ const AppContent: React.FC = () => {
 
   const showInterstitialAd = async () => {
     await new Promise<void>((resolve) => {
-      const adBreak = (window as any).adBreak;
-      if (typeof adBreak !== 'function') {
-        resolve();
+      const invokeAdBreak = () => {
+        const adBreak = window.adBreak;
+        if (typeof adBreak !== 'function') {
+          resolve();
+          return;
+        }
+
+        let settled = false;
+        const done = () => {
+          if (settled) return;
+          settled = true;
+          setIsAdPlaying(false);
+          resolve();
+        };
+
+        const timeoutId = window.setTimeout(done, 12000);
+
+        try {
+          adBreak({
+            type: 'browse',
+            name: 'generate-artifact',
+            beforeAd: () => setIsAdPlaying(true),
+            afterAd: () => {
+              window.clearTimeout(timeoutId);
+              done();
+            },
+            adBreakDone: () => {
+              window.clearTimeout(timeoutId);
+              done();
+            },
+          });
+        } catch (e) {
+          console.error('Ad break error:', e);
+          window.clearTimeout(timeoutId);
+          done();
+        }
+      };
+
+      if (typeof window.adBreak === 'function') {
+        invokeAdBreak();
         return;
       }
 
-      let settled = false;
-      const done = () => {
-        if (settled) return;
-        settled = true;
-        setIsAdPlaying(false);
-        resolve();
-      };
+      const waitUntil = Date.now() + 2500;
+      const poll = window.setInterval(() => {
+        if (typeof window.adBreak === 'function') {
+          window.clearInterval(poll);
+          invokeAdBreak();
+          return;
+        }
 
-      const timeoutId = window.setTimeout(done, 12000);
-
-      try {
-        adBreak({
-          type: 'next',
-          name: 'generate-artifact',
-          beforeAd: () => setIsAdPlaying(true),
-          afterAd: () => {
-            window.clearTimeout(timeoutId);
-            done();
-          },
-          adBreakDone: () => {
-            window.clearTimeout(timeoutId);
-            done();
-          },
-        });
-      } catch (e) {
-        console.error('Ad break error:', e);
-        window.clearTimeout(timeoutId);
-        done();
-      }
+        if (Date.now() >= waitUntil) {
+          window.clearInterval(poll);
+          resolve();
+        }
+      }, 100);
     });
   };
 
@@ -179,7 +229,9 @@ const AppContent: React.FC = () => {
 
   const generate = async () => {
     if (!keyword.trim() || status === 'generating' || isAdPlaying) return;
-    await showInterstitialAd();
+    if (adsenseClientId && isAdSdkReady) {
+      await showInterstitialAd();
+    }
     await runGeneration();
   };
 
