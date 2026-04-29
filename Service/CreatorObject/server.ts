@@ -4,9 +4,9 @@ import { GoogleGenAI } from "@google/genai";
 
 async function startServer() {
   const app = express();
-  // Firebase App Hosting 등 컨테이너에서는 PORT(기본 8080)와 HOST=0.0.0.0 이 필요할 수 있습니다.
+  // Cloud Run / Firebase App Hosting: PORT(기본 8080)로 0.0.0.0에 바인딩해야 헬스체크가 통과합니다.
   const PORT = Number(process.env.PORT) || 8080;
-  const HOST = process.env.HOST || "127.0.0.1";
+  const HOST = process.env.HOST || "0.0.0.0";
 
   app.use(express.json({ limit: '50mb' }));
 
