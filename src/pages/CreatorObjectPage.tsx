@@ -1,6 +1,10 @@
 import CreatorObjectApp from '../../Service/CreatorObject/App';
 
 export default function CreatorObjectPage() {
-  return <CreatorObjectApp />;
+  return (
+    <div className="gamja-creator min-h-screen overflow-hidden">
+      <CreatorObjectApp />
+    </div>
+  );
 }
 

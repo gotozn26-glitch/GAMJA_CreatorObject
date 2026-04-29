@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@source "../Service/CreatorObject/**/*.{ts,tsx}";
+
 html,
 body {
   height: 100%;
@@ -16,29 +18,57 @@ body {
   min-height: 100%;
 }
 
-.hide-scrollbar::-webkit-scrollbar {
+/* GAMJA OBJECT — 원본(오브젝트 생성기) 레이아웃·카드 스타일 */
+.gamja-creator {
+  --whisk-yellow: #ffd600;
+  --whisk-bg: #ececec;
+  --whisk-black: #000000;
+  --whisk-border: rgba(0, 0, 0, 0.1);
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--whisk-bg);
+  color: var(--whisk-black);
+}
+
+.gamja-creator .hide-scrollbar::-webkit-scrollbar {
+  display: none;
   width: 0;
   height: 0;
 }
-.hide-scrollbar {
+.gamja-creator .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.whisk-card {
-  border-radius: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.65);
-  box-shadow: 0 16px 44px -24px rgba(0, 0, 0, 0.35);
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+.gamja-creator .whisk-card {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1.5px dashed var(--whisk-border);
+  border-radius: 1.5rem;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
-.whisk-card.active {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(0, 0, 0, 0.14);
+.gamja-creator .whisk-card:hover {
+  border-color: var(--whisk-black);
+}
+.gamja-creator .whisk-card.active {
+  border-style: solid;
+  border-color: var(--whisk-black);
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
-.generate-btn {
-  background: #111111;
-  color: #ffffff;
+.gamja-creator .object-cover-contain {
+  object-fit: contain;
+}
+
+.gamja-creator .generate-btn {
+  background: var(--whisk-black);
+  color: white;
   letter-spacing: 0.06em;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.gamja-creator .generate-btn:hover:not(:disabled) {
+  background: #222;
+  transform: translateY(-2px);
+}
+.gamja-creator .generate-btn:active:not(:disabled) {
+  transform: translateY(0);
 }

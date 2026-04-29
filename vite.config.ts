@@ -1,9 +1,10 @@
 import path from 'path';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [tailwindcss(), react()],
   // 배포 환경에서 경로가 꼬이지 않도록 '/'로 고정합니다.
   base: '/', 
   resolve: {
