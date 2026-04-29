@@ -1,1 +1,44 @@
 @import "tailwindcss";
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: #0b0f1a;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+#root {
+  min-height: 100%;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.whisk-card {
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 16px 44px -24px rgba(0, 0, 0, 0.35);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+.whisk-card.active {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.14);
+}
+
+.generate-btn {
+  background: #111111;
+  color: #ffffff;
+  letter-spacing: 0.06em;
+}

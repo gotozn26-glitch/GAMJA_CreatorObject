@@ -4,8 +4,9 @@ import { GoogleGenAI } from "@google/genai";
 
 async function startServer() {
   const app = express();
-  // Firebase App Hosting 환경에서는 반드시 process.env.PORT(8080)를 사용해야 합니다.
-  const PORT = process.env.PORT || 8080;
+  // Firebase App Hosting 등 컨테이너에서는 PORT(기본 8080)와 HOST=0.0.0.0 이 필요할 수 있습니다.
+  const PORT = Number(process.env.PORT) || 8080;
+  const HOST = process.env.HOST || "127.0.0.1";
 
   app.use(express.json({ limit: '50mb' }));
 
@@ -99,8 +100,9 @@ async function startServer() {
     });
   });
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server is listening on port ${PORT}`);
+  app.listen(PORT, HOST, () => {
+    const urlHost = HOST === "0.0.0.0" ? "127.0.0.1" : HOST;
+    console.log(`Server: http://${urlHost}:${PORT}/`);
   });
 }
 
