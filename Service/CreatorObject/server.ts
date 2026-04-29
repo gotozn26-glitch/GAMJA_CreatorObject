@@ -18,9 +18,9 @@ async function startServer() {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "").trim().replace(/^"|"$/g, "").replace(/^'|'$/g, "");
     if (!apiKey) {
-      return res.status(500).json({ error: "GEMINI_API_KEY is not configured on the server." });
+      return res.status(500).json({ error: "GEMINI_API_KEY(or GOOGLE_API_KEY) is not configured on the server." });
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -83,7 +83,11 @@ async function startServer() {
       res.status(500).json({ error: '이미지 생성 데이터가 없습니다.' });
     } catch (error: any) {
       console.error("Gemini Server Error:", error);
-      res.status(500).json({ error: error.message || "생성에 실패했습니다." });
+      const message = String(error?.message || "");
+      if (message.includes("API key not valid") || message.includes("API_KEY_INVALID")) {
+        return res.status(401).json({ error: "Gemini API 키가 유효하지 않습니다. Firebase 환경변수(GEMINI_API_KEY 또는 GOOGLE_API_KEY)를 다시 확인해 주세요." });
+      }
+      res.status(500).json({ error: message || "생성에 실패했습니다." });
     }
   });
 

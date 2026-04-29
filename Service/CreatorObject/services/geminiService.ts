@@ -24,7 +24,10 @@ export class GeminiService {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || '생성에 실패했습니다.');
+        const message = typeof data?.error === 'string'
+          ? data.error
+          : data?.error?.message || '생성에 실패했습니다.';
+        throw new Error(message);
       }
 
       return data.url;

@@ -53,7 +53,7 @@ export default function Home() {
       <main className="mx-auto w-full max-w-[980px] px-6 pb-12 pt-14 md:pt-20">
         <header className="mb-10 md:mb-14">
           <div className="text-[18px] font-extrabold tracking-tight md:text-[20px]">
-            <span className="mr-1">🥔</span>
+            <span className="mr-1">🥔🥔🥔</span>
             <span className="opacity-90">’s Lab</span>
           </div>
           <h1 className="mt-2 text-[60px] font-black leading-[0.92] tracking-[-0.05em] md:text-[104px]">
