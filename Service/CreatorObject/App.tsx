@@ -8,21 +8,33 @@ import { geminiService } from './services/geminiService';
 /* --- google adsense banner start --- */
 import { useEffect } from 'react';
 
-const AdBanner = () => {
+declare global {
+  interface Window {
+    __APP_CONFIG__?: {
+      ADSENSE_CLIENT_ID?: string;
+    };
+    adsbygoogle?: any[];
+    adBreak?: (options: Record<string, unknown>) => void;
+  }
+}
+
+const AdBanner = ({ adClientId }: { adClientId: string | null }) => {
   useEffect(() => {
+    if (!adClientId) return;
     try {
-      // @ts-ignore
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (e) {
       console.error("AdSense error", e);
     }
-  }, []);
+  }, [adClientId]);
+
+  if (!adClientId) return null;
 
   return (
     <div style={{ textAlign: 'center', margin: '20px 0', minHeight: '100px' }}>
       <ins className="adsbygoogle"
            style={{ display: 'block' }}
-           data-ad-client="ca-pub-9680572306636399"
+           data-ad-client={adClientId}
            data-ad-slot="9414681583"
            data-ad-format="auto"
            data-full-width-responsive="true"></ins>
@@ -40,11 +52,26 @@ const AppContent: React.FC = () => {
   const [keyword, setKeyword] = useState('');
   const [referenceImage, setReferenceImage] = useState<string | null>(null);
   const [status, setStatus] = useState<GenerationStatus>('idle');
+  const [isAdPlaying, setIsAdPlaying] = useState(false);
   const [results, setResults] = useState<GeneratedVariation[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [adsenseClientId, setAdsenseClientId] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const clientId = window.__APP_CONFIG__?.ADSENSE_CLIENT_ID?.trim();
+    if (!clientId) return;
+
+    setAdsenseClientId(clientId);
+
+    const script = document.createElement('script');
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(clientId)}`;
+    document.head.appendChild(script);
+  }, []);
 
   const processFile = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -76,9 +103,47 @@ const AppContent: React.FC = () => {
     if (file) processFile(file);
   };
 
-  const generate = async () => {
-    if (!keyword.trim() || status === 'generating') return;
-    console.log("입구 통과!");
+  const showInterstitialAd = async () => {
+    await new Promise<void>((resolve) => {
+      const adBreak = (window as any).adBreak;
+      if (typeof adBreak !== 'function') {
+        resolve();
+        return;
+      }
+
+      let settled = false;
+      const done = () => {
+        if (settled) return;
+        settled = true;
+        setIsAdPlaying(false);
+        resolve();
+      };
+
+      const timeoutId = window.setTimeout(done, 12000);
+
+      try {
+        adBreak({
+          type: 'next',
+          name: 'generate-artifact',
+          beforeAd: () => setIsAdPlaying(true),
+          afterAd: () => {
+            window.clearTimeout(timeoutId);
+            done();
+          },
+          adBreakDone: () => {
+            window.clearTimeout(timeoutId);
+            done();
+          },
+        });
+      } catch (e) {
+        console.error('Ad break error:', e);
+        window.clearTimeout(timeoutId);
+        done();
+      }
+    });
+  };
+
+  const runGeneration = async () => {
     setStatus('generating');
     setError(null);
     setResults([]);
@@ -110,6 +175,12 @@ const AppContent: React.FC = () => {
       setError(err.message || '생성에 실패했습니다.');
       setStatus('error');
     }
+  };
+
+  const generate = async () => {
+    if (!keyword.trim() || status === 'generating' || isAdPlaying) return;
+    await showInterstitialAd();
+    await runGeneration();
   };
 
   const download = (url: string) => {
@@ -206,19 +277,25 @@ const AppContent: React.FC = () => {
           <div className="mt-4 pb-10">
             <button 
               onClick={generate}
-              disabled={status === 'generating' || !keyword.trim()}
+              disabled={status === 'generating' || isAdPlaying || !keyword.trim()}
               className="generate-btn w-full py-5 rounded-full font-black text-lg flex items-center justify-center gap-4 disabled:opacity-20 shadow-xl"
             >
-              {status === 'generating' ? (
+              {status === 'generating' || isAdPlaying ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
               ) : (
                 <span className="material-symbols-rounded">auto_fix_high</span>
               )}
-              <span>{status === 'generating' ? 'GENERATING...' : 'GENERATE ARTIFACT'}</span>
+              <span>
+                {isAdPlaying
+                  ? 'SHOWING AD...'
+                  : status === 'generating'
+                    ? 'GENERATING...'
+                    : 'GENERATE ARTIFACT'}
+              </span>
             </button>
               {/* ⭐️ 여기에 광고 배너를 넣으세요! */}
               <div className="mt-6"> 
-                <AdBanner />
+                <AdBanner adClientId={adsenseClientId} />
               </div>
           </div>
         </aside>
