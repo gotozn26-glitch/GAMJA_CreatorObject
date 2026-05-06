@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
+/* MultiView(단독 빌드는 CDN tailwind.config) — 모노레포 메인 번들용 테마 */
+@theme {
+  --color-primary: #35d0b2;
+  --color-primary-hover: #2eb89d;
+}
+
 @source "../Service/CreatorObject/**/*.{ts,tsx}";
+@source "../Service/MultiView/**/*.{ts,tsx}";
 
 html,
 body {
@@ -16,6 +23,51 @@ body {
 
 #root {
   min-height: 100%;
+}
+
+/* Rotation(MultiView) — 아이콘 폰트 (Outlined) */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.gamja-multiview input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  width: 100%;
+}
+.gamja-multiview input[type='range']::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: #edf2f7;
+  border-radius: 3px;
+}
+.gamja-multiview input[type='range']::-webkit-slider-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #35d0b2;
+  -webkit-appearance: none;
+  margin-top: -7px;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 4px 8px rgba(53, 208, 178, 0.3);
+}
+.gamja-multiview input[type='range']::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: #edf2f7;
+  border-radius: 3px;
+}
+.gamja-multiview input[type='range']::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #35d0b2;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 4px 8px rgba(53, 208, 178, 0.3);
 }
 
 /* GAMJA OBJECT — 원본(오브젝트 생성기) 레이아웃·카드 스타일 */

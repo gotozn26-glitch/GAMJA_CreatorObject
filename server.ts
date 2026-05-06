@@ -103,8 +103,13 @@ async function startServer() {
   const distPath = path.resolve(process.cwd(), "dist");
   app.use(express.static(distPath));
 
-  // [3순위] SPA 대응 (Express 5 에러 방지 정규식)
+  // [3순위] SPA 폴백 — 실제 정적 파일(또는 /assets/*) 요청에는 index.html을 주지 않습니다.
+  // 그렇지 않으면 누락된 JS가 HTML로 내려가 브라우저가 조용히 흰 화면만 냅니다.
   app.get(/.*/, (req, res) => {
+    const p = req.path;
+    if (p.startsWith("/assets/") || /\.[a-zA-Z0-9]+$/.test(p)) {
+      return res.status(404).type("text/plain").send("Not found");
+    }
     res.sendFile(path.join(distPath, "index.html"), (err) => {
       if (err) {
         res.status(404).send("Build files not found.");

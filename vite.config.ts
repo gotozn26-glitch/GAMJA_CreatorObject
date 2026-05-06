@@ -6,7 +6,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [tailwindcss(), react()],
   // 배포 환경에서 경로가 꼬이지 않도록 '/'로 고정합니다.
-  base: '/', 
+  base: '/',
+  server: {
+    proxy: {
+      '/api': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/runtime-config.js': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),

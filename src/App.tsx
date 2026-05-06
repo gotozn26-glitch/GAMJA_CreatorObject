@@ -1,17 +1,29 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Home from './pages/Home';
-import CreatorObjectPage from './pages/CreatorObjectPage';
-import MultiViewPage from './pages/MultiViewPage';
+
+const CreatorObjectPage = lazy(() => import('./pages/CreatorObjectPage'));
+const MultiViewPage = lazy(() => import('./pages/MultiViewPage'));
+
+function RouteFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#bfe7ff] via-[#c8efff] to-[#d4ffd2] text-[#0b0f1a] text-sm font-bold">
+      로딩 중…
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/service/multiview" element={<MultiViewPage />} />
-        <Route path="/service/creator-object" element={<CreatorObjectPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/service/multiview" element={<MultiViewPage />} />
+          <Route path="/service/creator-object" element={<CreatorObjectPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

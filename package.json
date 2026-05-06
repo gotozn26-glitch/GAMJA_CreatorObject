@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
+    "dev:ui": "vite",
     "build": "vite build",
     "start": "tsx server.ts",
     "tunnel": "lt --port 8080"
