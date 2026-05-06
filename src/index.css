@@ -4,10 +4,12 @@
 @theme {
   --color-primary: #35d0b2;
   --color-primary-hover: #2eb89d;
+  --font-sans: "Pretendard", ui-sans-serif, system-ui, sans-serif;
 }
 
 @source "../Service/CreatorObject/**/*.{ts,tsx}";
 @source "../Service/MultiView/**/*.{ts,tsx}";
+@source "../Service/StoryboardDirector/**/*.{ts,tsx}";
 
 html,
 body {
@@ -123,4 +125,36 @@ body {
 }
 .gamja-creator .generate-btn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+/* Storyboard Director (임베드용 — 단독 index.css와 동일 컴포넌트 토큰) */
+@layer components {
+  .glass-panel {
+    @apply bg-black/60 backdrop-blur-3xl border border-white/5 shadow-2xl;
+  }
+
+  .glass-card {
+    @apply bg-white/[0.02] backdrop-blur-xl border border-white/5 hover:bg-white/[0.05] transition-all duration-300;
+  }
+
+  .glass-button {
+    @apply bg-white/[0.05] backdrop-blur-md border border-white/5 hover:bg-white/[0.1] active:scale-95 transition-all duration-200;
+  }
+
+  .glass-input {
+    @apply bg-black/40 border border-white/[0.05] focus:border-white/20 focus:ring-1 focus:ring-white/5 outline-none transition-all;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .canvas-bg {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
 }

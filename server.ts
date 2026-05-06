@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { buildMultiviewPerspectivePrompt } from "./Service/MultiView/services/multiviewPrompt";
 
 function getGeminiApiKey(): string {
@@ -227,6 +227,174 @@ async function startServer() {
         return res.status(401).json({ error: "Gemini API 키가 유효하지 않습니다." });
       }
       res.status(500).json({ error: message || "편집에 실패했습니다." });
+    }
+  });
+
+  /** Storyboard Director — 분석(바운딩) / 이미지 생성 */
+  app.post("/api/storyboard/analyze", async (req, res) => {
+    const { imageDataUrl, prompt, slots } = req.body || {};
+    if (!imageDataUrl || typeof prompt !== "string" || !Array.isArray(slots)) {
+      return res.status(400).json({ error: "요청 형식이 올바르지 않습니다." });
+    }
+
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) {
+      return res.status(500).json({ error: "서버에 GEMINI_API_KEY(또는 GOOGLE_API_KEY)가 설정되어 있지 않습니다." });
+    }
+
+    const img = decodeDataUrl(imageDataUrl);
+    if (!img.data) {
+      return res.status(400).json({ error: "이미지 데이터가 비어 있습니다." });
+    }
+
+    const slotConstraints = slots
+      .map((s: { id: string; type: string }) => `"${s.type}" (ID: ${s.id})`)
+      .join(", ");
+
+    const analysisPrompt = `
+    Analyze this storyboard sketch and identify the regions for the following objects: ${slotConstraints}.
+    Based on the image and the context: "${prompt}", find the most likely bounding boxes for these objects.
+    
+    Return the result as a JSON array of objects, each containing:
+    - "slotId": the ID of the slot.
+    - "box": [ymin, xmin, ymax, xmax] in normalized coordinates (0-1000).
+    
+    Example: [{"slotId": "A", "box": [100, 200, 500, 600]}]
+    Only return the JSON.
+  `;
+
+    const model =
+      (process.env.STORYBOARD_ANALYZE_MODEL || "").trim() || "gemini-2.5-flash";
+    const ai = new GoogleGenAI({ apiKey });
+
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: [
+          { inlineData: { data: img.data, mimeType: img.mimeType } },
+          { text: analysisPrompt },
+        ],
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                slotId: { type: Type.STRING },
+                box: {
+                  type: Type.ARRAY,
+                  items: { type: Type.NUMBER },
+                  description: "[ymin, xmin, ymax, xmax]",
+                },
+              },
+              required: ["slotId", "box"],
+            },
+          },
+        },
+      });
+
+      let results: { slotId: string; box: [number, number, number, number] }[] = [];
+      try {
+        results = JSON.parse(response.text || "[]");
+      } catch {
+        results = [];
+      }
+      if (!Array.isArray(results)) results = [];
+      return res.json({ results });
+    } catch (error: any) {
+      console.error("Storyboard analyze error:", error);
+      const message = String(error?.message || "");
+      if (message.includes("API key not valid") || message.includes("API_KEY_INVALID")) {
+        return res.status(401).json({ error: "Gemini API 키가 유효하지 않습니다." });
+      }
+      res.status(500).json({ error: message || "분석에 실패했습니다." });
+    }
+  });
+
+  app.post("/api/storyboard/generate", async (req, res) => {
+    const { baseDataUrl, maskDataUrl, prompt, references } = req.body || {};
+    if (!baseDataUrl || !maskDataUrl || typeof prompt !== "string" || !Array.isArray(references)) {
+      return res.status(400).json({ error: "요청 형식이 올바르지 않습니다." });
+    }
+
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) {
+      return res.status(500).json({ error: "서버에 GEMINI_API_KEY(또는 GOOGLE_API_KEY)가 설정되어 있지 않습니다." });
+    }
+
+    const base = decodeDataUrl(baseDataUrl);
+    const mask = decodeDataUrl(maskDataUrl);
+    if (!base.data || !mask.data) {
+      return res.status(400).json({ error: "이미지 데이터가 비어 있습니다." });
+    }
+
+    const referenceContext = references
+      .map(
+        (ref: { color: string; type: string }) =>
+          `The area marked with ${ref.color} in the mask corresponds to ${ref.type}. Refer to the provided reference image for this object's design and identity.`,
+      )
+      .join("\n");
+
+    const finalPrompt = `
+    TASK: Transform this storyboard sketch into a high-quality finished cinematic image.
+    LOCATE: Maintain the composition, framing, and perspective of the original sketch.
+    ASSIGN: 
+    ${referenceContext}
+    STORY CONTEXT: ${prompt}
+    
+    The output should be a single high-fidelity image that strictly follows these layout and design constraints.
+  `;
+
+    const model =
+      (process.env.STORYBOARD_IMAGE_MODEL || "").trim() || "gemini-2.5-flash-image";
+    const ai = new GoogleGenAI({ apiKey });
+
+    const parts: any[] = [
+      { inlineData: { data: base.data, mimeType: base.mimeType } },
+      { inlineData: { data: mask.data, mimeType: mask.mimeType } },
+    ];
+
+    for (const ref of references as { imageDataUrl: string }[]) {
+      if (!ref?.imageDataUrl) continue;
+      const r = decodeDataUrl(ref.imageDataUrl);
+      if (r.data) {
+        parts.push({ inlineData: { data: r.data, mimeType: r.mimeType } });
+      }
+    }
+    parts.push({ text: finalPrompt });
+
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: { parts },
+        config: {
+          imageConfig: {
+            aspectRatio: "16:9",
+          },
+        },
+      });
+
+      const images: string[] = [];
+      if (response.candidates?.[0]?.content?.parts) {
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+            images.push(`data:image/png;base64,${part.inlineData.data}`);
+          }
+        }
+      }
+
+      if (images.length === 0) {
+        return res.status(403).json({ error: "AI 안전 필터에 의해 생성이 제한되었거나 결과가 없습니다." });
+      }
+      return res.json({ images });
+    } catch (error: any) {
+      console.error("Storyboard generate error:", error);
+      const message = String(error?.message || "");
+      if (message.includes("API key not valid") || message.includes("API_KEY_INVALID")) {
+        return res.status(401).json({ error: "Gemini API 키가 유효하지 않습니다." });
+      }
+      res.status(500).json({ error: message || "생성에 실패했습니다." });
     }
   });
 

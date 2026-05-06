@@ -4,6 +4,7 @@ import Home from './pages/Home';
 
 const CreatorObjectPage = lazy(() => import('./pages/CreatorObjectPage'));
 const MultiViewPage = lazy(() => import('./pages/MultiViewPage'));
+const StoryboardDirectorPage = lazy(() => import('./pages/StoryboardDirectorPage'));
 
 function RouteFallback() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/service/multiview" element={<MultiViewPage />} />
+          <Route path="/service/storyboard-director" element={<StoryboardDirectorPage />} />
           <Route path="/service/creator-object" element={<CreatorObjectPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

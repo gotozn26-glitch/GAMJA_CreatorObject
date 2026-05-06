@@ -36,7 +36,8 @@ export default function Home() {
       name: 'SB Director',
       desc: '스토리보드로 장면을 생성합니다',
       image: 'https://picsum.photos/seed/storyboard/900/600',
-      active: false,
+      active: true,
+      to: '/service/storyboard-director',
     },
     {
       key: 'variation',
