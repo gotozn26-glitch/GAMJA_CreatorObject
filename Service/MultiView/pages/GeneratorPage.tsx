@@ -1,5 +1,5 @@
-
 import { useState, useRef, forwardRef } from 'react';
+import { toPng } from 'html-to-image';
 import { Rotation, GeneratedImage } from '../types';
 import { generateSingleView, editImage } from '../services/geminiService';
 
@@ -10,7 +10,6 @@ declare global {
   }
 
   interface Window {
-    html2canvas: any;
     aistudio?: AIStudio;
   }
 }
@@ -149,14 +148,12 @@ export const GeneratorPage: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      await new Promise(r => setTimeout(r, 1500)); 
-      const canvas = await window.html2canvas(hiddenCubeRef.current, { 
-        backgroundColor: '#ffffff', 
-        scale: 1,
-        logging: false,
-        useCORS: true 
+      await new Promise(r => setTimeout(r, 1500));
+      const cubeBase64 = await toPng(hiddenCubeRef.current, {
+        cacheBust: true,
+        pixelRatio: 1,
+        backgroundColor: '#ffffff',
       });
-      const cubeBase64 = canvas.toDataURL('image/png');
       
       const singleUrl = await generateSingleView(sourceImage, cubeBase64, rotation);
       setResults([{ url: singleUrl, title: 'Spatial Sync Result', view: `${getViewpointText()} (${rotation.x}°, ${rotation.y}°)` }]);
