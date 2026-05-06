@@ -139,11 +139,14 @@ export const GeneratorPage: React.FC = () => {
   const startProcessing = async () => {
     if (!sourceImage || !hiddenCubeRef.current) return;
 
-    const hasKey = await window.aistudio?.hasSelectedApiKey();
-    if (!hasKey) {
-      await window.aistudio?.openSelectKey();
+    if (window.aistudio?.hasSelectedApiKey) {
+      const hasKey = await window.aistudio.hasSelectedApiKey();
+      if (!hasKey) {
+        await window.aistudio.openSelectKey?.();
+        return;
+      }
     }
-    
+
     setIsProcessing(true);
     try {
       await new Promise(r => setTimeout(r, 1500)); 
@@ -158,11 +161,12 @@ export const GeneratorPage: React.FC = () => {
       const singleUrl = await generateSingleView(sourceImage, cubeBase64, rotation);
       setResults([{ url: singleUrl, title: 'Spatial Sync Result', view: `${getViewpointText()} (${rotation.x}°, ${rotation.y}°)` }]);
     } catch (e: any) {
-      if (e.message === "API_KEY_RESET") {
-          alert("API 키 설정이 필요합니다.");
-          await window.aistudio?.openSelectKey();
+      if (e?.message === "API_KEY_RESET") {
+        alert("API 키 설정이 필요합니다.");
+        await window.aistudio?.openSelectKey?.();
       } else {
-          alert("렌더링 엔진 오류가 발생했습니다.");
+        const msg = typeof e?.message === "string" && e.message.trim() ? e.message : "렌더링 엔진 오류가 발생했습니다.";
+        alert(msg);
       }
     } finally {
       setIsProcessing(false);
