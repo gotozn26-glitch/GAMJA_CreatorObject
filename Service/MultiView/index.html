@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotation AI - 3D Perspective Master</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#35d0b2",
+                        "primary-hover": "#2eb89d",
+                        "surface-bg": "#f8f9fa",
+                        "panel-bg": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans KR", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "3xl": "1.5rem",
+                        "4xl": "2.5rem",
+                        "5xl": "3.5rem",
+                    }
+                },
+            },
+        }
+    </script>
+    <!-- Screenshot Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            min-height: 100vh;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        /* Input Range Styling matches the reference image */
+        input[type=range] {
+          -webkit-appearance: none;
+          background: transparent;
+          width: 100%;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+          width: 100%;
+          height: 6px;
+          background: #edf2f7;
+          border-radius: 3px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #35d0b2;
+          -webkit-appearance: none;
+          margin-top: -7px;
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 4px 8px rgba(53, 208, 178, 0.3);
+        }
+
+        .main-card {
+            background: #ffffff;
+            border-radius: 3rem;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="font-display antialiased">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

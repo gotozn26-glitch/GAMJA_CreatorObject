@@ -1,0 +1,8 @@
+{
+  "name": "멀티뷰 생성기",
+  "description": "단일 2D 이미지를 3D 모델링 파이프라인에 즉시 사용 가능한 다각도 뷰로 변환하거나 AI를 통해 이미지를 편집합니다.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}

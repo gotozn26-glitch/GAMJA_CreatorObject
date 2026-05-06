@@ -20,7 +20,8 @@ export default function Home() {
       name: 'Rotation',
       desc: '오브젝트를 정교하게 회전시킵니다',
       image: 'https://picsum.photos/seed/cube/900/600',
-      active: false,
+      active: true,
+      to: '/service/multiview',
     },
     {
       key: 'creator-object',
