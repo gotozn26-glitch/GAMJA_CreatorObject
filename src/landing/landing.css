@@ -1,0 +1,263 @@
+.landing-theme.dark {
+  --background: 240 10% 4%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 8%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 8%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 270 80% 65%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 10% 14%;
+  --secondary-foreground: 0 0% 90%;
+  --muted: 240 8% 16%;
+  --muted-foreground: 240 5% 55%;
+  --accent: 270 60% 50%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 240 8% 18%;
+  --input: 240 8% 18%;
+  --ring: 270 80% 65%;
+  --radius: 1rem;
+  --glass-border: hsl(270 60% 70% / 0.2);
+  --glass-glow: 0 0 60px hsl(270 80% 60% / 0.15), 0 0 120px hsl(330 70% 55% / 0.08);
+  --pop-yellow: 40 95% 55%;
+  --pop-blue: 220 85% 55%;
+  --pop-orange: 25 95% 55%;
+  --pop-purple: 270 70% 55%;
+  --pop-lime: 150 70% 45%;
+  --pop-pink: 330 80% 55%;
+  --pop-red: 0 80% 55%;
+  --sidebar-background: 240 10% 6%;
+  --sidebar-foreground: 0 0% 90%;
+  --sidebar-primary: 270 80% 65%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 8% 14%;
+  --sidebar-accent-foreground: 0 0% 90%;
+  --sidebar-border: 240 8% 18%;
+  --sidebar-ring: 270 80% 65%;
+}
+
+.landing-theme.light {
+  --background: 220 20% 97%;
+  --foreground: 240 10% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 10%;
+  --primary: 270 70% 55%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 15% 92%;
+  --secondary-foreground: 240 10% 20%;
+  --muted: 220 15% 92%;
+  --muted-foreground: 220 10% 45%;
+  --accent: 270 50% 50%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 15% 88%;
+  --input: 220 15% 88%;
+  --ring: 270 70% 55%;
+  --radius: 1rem;
+  --glass-border: hsl(270 40% 70% / 0.15);
+  --glass-glow: 0 4px 20px hsl(270 50% 50% / 0.08);
+  --pop-yellow: 40 95% 50%;
+  --pop-blue: 220 85% 50%;
+  --pop-orange: 25 95% 50%;
+  --pop-purple: 270 70% 50%;
+  --pop-lime: 150 70% 40%;
+  --pop-pink: 330 80% 50%;
+  --pop-red: 0 80% 50%;
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 240 10% 10%;
+  --sidebar-primary: 270 70% 55%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 220 15% 95%;
+  --sidebar-accent-foreground: 240 10% 20%;
+  --sidebar-border: 220 15% 88%;
+  --sidebar-ring: 270 70% 55%;
+}
+
+.landing-theme {
+  font-family: "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  position: relative;
+}
+
+.landing-theme h1,
+.landing-theme h2,
+.landing-theme h3,
+.landing-theme h4,
+.landing-theme h5,
+.landing-theme h6 {
+  font-family: "Space Grotesk", "Noto Sans KR", sans-serif;
+}
+
+.landing-theme * {
+  border-color: hsl(var(--border));
+}
+
+.landing-theme .glass-card {
+  background: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+.landing-theme .glass-card-glow {
+  background: hsl(var(--card) / 0.5);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-glow);
+}
+
+.landing-theme .glass-card-strong {
+  background: hsl(var(--card) / 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid hsl(var(--border) / 0.6);
+  box-shadow: var(--glass-glow);
+}
+
+.landing-theme .section-surface {
+  background: hsl(var(--background) / 0.4);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-top: 1px solid hsl(var(--border) / 0.3);
+  border-bottom: 1px solid hsl(var(--border) / 0.3);
+}
+
+.landing-theme .section-surface-alt {
+  background: hsl(var(--card) / 0.3);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-top: 1px solid hsl(var(--border) / 0.2);
+  border-bottom: 1px solid hsl(var(--border) / 0.2);
+}
+
+.landing-theme .text-gradient {
+  background: linear-gradient(135deg, hsl(330 80% 65%), hsl(270 70% 65%), hsl(220 80% 65%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.landing-theme .backlit {
+  position: relative;
+}
+.landing-theme .backlit::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, hsl(330 70% 55% / 0.3), hsl(270 60% 55% / 0.3), hsl(220 70% 55% / 0.3));
+  z-index: -1;
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.landing-theme .backlit:hover::before {
+  opacity: 1;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tw-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-theme .animate-fade-up {
+  animation: tw-fade-up 0.5s ease-out forwards;
+}
+
+.landing-theme .stagger-children > * {
+  animation: fade-up 0.5s ease-out forwards;
+  opacity: 0;
+}
+.landing-theme .stagger-children > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.landing-theme .stagger-children > *:nth-child(2) {
+  animation-delay: 100ms;
+}
+.landing-theme .stagger-children > *:nth-child(3) {
+  animation-delay: 200ms;
+}
+.landing-theme .stagger-children > *:nth-child(4) {
+  animation-delay: 300ms;
+}
+.landing-theme .stagger-children > *:nth-child(5) {
+  animation-delay: 400ms;
+}
+.landing-theme .stagger-children > *:nth-child(6) {
+  animation-delay: 500ms;
+}
+
+.landing-theme .btn-gradient {
+  position: relative;
+  background: linear-gradient(135deg, hsl(330 70% 55%), hsl(270 60% 55%), hsl(220 70% 55%));
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+.landing-theme .btn-gradient:hover {
+  box-shadow: 0 0 30px hsl(270 70% 55% / 0.4);
+  transform: translateY(-1px);
+}
+
+/* 전역 --color-primary(#35d0b2)와 충돌하지 않도록 primary 토큰은 제외합니다. */
+@theme {
+  --font-heading: "Space Grotesk", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --color-pop-yellow: hsl(var(--pop-yellow));
+  --color-pop-blue: hsl(var(--pop-blue));
+  --color-pop-orange: hsl(var(--pop-orange));
+  --color-pop-purple: hsl(var(--pop-purple));
+  --color-pop-lime: hsl(var(--pop-lime));
+  --color-pop-pink: hsl(var(--pop-pink));
+  --color-pop-red: hsl(var(--pop-red));
+}

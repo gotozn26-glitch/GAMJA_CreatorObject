@@ -1,4 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
+@import "./landing/landing.css";
 
 /* MultiView(단독 빌드는 CDN tailwind.config) — 모노레포 메인 번들용 테마 */
 @theme {
@@ -10,6 +12,8 @@
 @source "../Service/CreatorObject/**/*.{ts,tsx}";
 @source "../Service/MultiView/**/*.{ts,tsx}";
 @source "../Service/StoryboardDirector/**/*.{ts,tsx}";
+@source "../Service/LogoMaker/**/*.{ts,tsx}";
+@source "./landing/**/*.{ts,tsx}";
 
 html,
 body {
@@ -157,4 +161,48 @@ body {
     background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: 24px 24px;
   }
+}
+
+/* LogoMaker (Service/LogoMaker) — 단독 index.html의 인라인 스타일 대체 */
+.gamja-logomaker .custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.gamja-logomaker .custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gamja-logomaker .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+@keyframes gamja-logomaker-float {
+  0% {
+    transform: translateY(0px);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 0.8;
+  }
+}
+.gamja-logomaker .animate-float {
+  animation: gamja-logomaker-float 4s ease-in-out infinite;
+}
+
+@keyframes gamja-logomaker-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.gamja-logomaker .animate-fade-in {
+  animation: gamja-logomaker-fade-in 0.35s ease-out forwards;
 }
