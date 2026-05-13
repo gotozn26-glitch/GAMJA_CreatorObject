@@ -18,7 +18,7 @@ const FeaturedToolsSection = () => {
             가장 많이 사용된 도구를 지금 확인해보세요
           </p>
         </div>
-        <div className="grid gap-8 md:grid-cols-3 stagger-children">
+        <div className="grid gap-8 md:grid-cols-3">
           {featured.map((tool, i) => (
             <ToolCard key={tool.name} {...tool} index={i} featured />
           ))}

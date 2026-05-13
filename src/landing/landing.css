@@ -185,12 +185,20 @@
 }
 
 .landing-theme .animate-fade-up {
-  animation: tw-fade-up 0.5s ease-out forwards;
+  animation: tw-fade-up 0.5s ease-out both;
 }
 
 .landing-theme .stagger-children > * {
-  animation: fade-up 0.5s ease-out forwards;
-  opacity: 0;
+  animation: fade-up 0.5s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-theme .animate-fade-up,
+  .landing-theme .stagger-children > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 .landing-theme .stagger-children > *:nth-child(1) {
   animation-delay: 0ms;
