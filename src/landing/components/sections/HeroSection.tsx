@@ -1,6 +1,6 @@
 const HeroSection = () => {
   const scrollToCategories = () => {
-    document.getElementById("tool-categories")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("main-tools")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (

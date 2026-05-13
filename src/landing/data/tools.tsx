@@ -36,18 +36,19 @@ export const tools: Tool[] = [
     featured: true,
   },
   {
-    name: "Logo Maker",
-    description: "AI로 로고 컨셉을 생성·편집합니다",
-    url: "/service/logo-maker",
-    icon: <Sparkles className="h-6 w-6" />,
-    category: "이미지",
-    featured: true,
-  },
-  {
     name: "Varivariaition",
     description: "다양한 사이즈로 베리에이션합니다",
     url: "",
     icon: <ImageIcon className="h-5 w-5" />,
     category: "이미지",
+    featured: true,
+  },
+  {
+    name: "LogoMaker",
+    description: "AI로 로고 컨셉을 생성·편집합니다",
+    url: "/service/logo-maker",
+    icon: <Sparkles className="h-6 w-6" />,
+    category: "이미지",
+    featured: true,
   },
 ];
