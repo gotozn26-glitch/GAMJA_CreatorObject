@@ -1,6 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
-@import "./landing/landing.css";
 
 /* MultiView(단독 빌드는 CDN tailwind.config) — 모노레포 메인 번들용 테마 */
 @theme {
@@ -13,7 +11,6 @@
 @source "../Service/MultiView/**/*.{ts,tsx}";
 @source "../Service/StoryboardDirector/**/*.{ts,tsx}";
 @source "../Service/LogoMaker/**/*.{ts,tsx}";
-@source "./landing/**/*.{ts,tsx}";
 
 html,
 body {
