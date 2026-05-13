@@ -56,12 +56,16 @@ const getClient = () => {
 
 const plannerModelCandidates = [
   import.meta.env.VITE_OPENAI_PLANNER_MODEL,
-  "gpt-4.1-mini",
   "gpt-4o-mini",
 ].filter(Boolean) as string[];
 
 /** 로고 생성·편집에 사용하는 이미지 모델 (고정) */
 const primaryImageModel = "gpt-image-2";
+
+export type LogoGenerationContext = {
+  strategy: LogoStrategy;
+  fontSketchProfile: FontSketchProfile | null;
+};
 
 const formatOpenAiError = (err: any) => {
   const parts = [
@@ -154,20 +158,6 @@ const logoStrategySchema = {
     "colorPlan",
     "constraints",
   ],
-};
-
-const fontSketchProfileSchema = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    cornerStyle: { type: "string", enum: ["angular", "rounded", "mixed"] },
-    strokeWeight: { type: "string", enum: ["light", "medium", "bold", "ultra-bold"] },
-    regularity: { type: "string", enum: ["structured", "organic", "irregular"] },
-    tilt: { type: "string", enum: ["upright", "slanted", "mixed"] },
-    energy: { type: "string", enum: ["calm", "playful", "aggressive"] },
-    notes: { type: "string" },
-  },
-  required: ["cornerStyle", "strokeWeight", "regularity", "tilt", "energy", "notes"],
 };
 
 const buildFinalImagePrompt = (
@@ -295,42 +285,86 @@ const createPlannerStrategy = async (
   throw new Error(`Planner failed: ${formatOpenAiError(lastError)}`);
 };
 
-const analyzeFontSketchProfile = async (
-  client: OpenAI,
-  fontSketchImage: string | null
-): Promise<FontSketchProfile | null> => {
-  if (!fontSketchImage) return null;
-  try {
-    const response = await client.responses.create({
-      model: "gpt-4.1-mini",
-      input: [
+const buildPlannerInput = (
+  userPrompt: string,
+  config: DesignConfig,
+  variationHint: string,
+  styleRefImage: string | null,
+  compositionRefImage: string | null,
+  fontSketchImage: string | null,
+  fontSketchProfile: FontSketchProfile | null
+) => {
+  const plannerInput: any[] = [
+    {
+      role: "system",
+      content:
+        "You plan visual generation strategy for logo design tasks. Return strict JSON only.",
+    },
+    {
+      role: "user",
+      content: [
         {
-          role: "user",
-          content: [
-            {
-              type: "input_text",
-              text:
-                "Analyze this font sketch and extract lettering morphology profile for logo generation. Focus on corner shape, stroke weight, regularity, tilt, and visual energy. Return strict JSON.",
-            },
-            {
-              type: "input_image",
-              image_url: fontSketchImage,
-            },
-          ],
+          type: "input_text",
+          text: buildStrategyPrompt(
+            userPrompt,
+            config,
+            variationHint,
+            Boolean(styleRefImage),
+            Boolean(compositionRefImage),
+            Boolean(fontSketchImage),
+            fontSketchProfile
+          ),
         },
       ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "font_sketch_profile",
-          schema: fontSketchProfileSchema,
-        },
-      },
+    },
+  ];
+
+  if (compositionRefImage) {
+    plannerInput[1].content.push({
+      type: "input_image",
+      image_url: compositionRefImage,
     });
-    return JSON.parse(response.output_text) as FontSketchProfile;
-  } catch {
-    return null;
   }
+
+  if (fontSketchImage) {
+    plannerInput[1].content.push({
+      type: "input_image",
+      image_url: fontSketchImage,
+    });
+  }
+
+  if (styleRefImage) {
+    plannerInput[1].content.push({
+      type: "input_image",
+      image_url: styleRefImage,
+    });
+  }
+
+  return plannerInput;
+};
+
+/** 배치 생성 시 1회만 호출 — 플래너를 공유해 변형 수만큼 반복하지 않음 */
+export const prepareLogoGenerationContext = async (
+  userPrompt: string,
+  config: DesignConfig,
+  compositionRefImage: string | null,
+  fontSketchImage: string | null,
+  styleRefImage: string | null
+): Promise<LogoGenerationContext> => {
+  const client = getClient();
+  const strategy = await createPlannerStrategy(
+    client,
+    buildPlannerInput(
+      userPrompt,
+      config,
+      "Plan one strong logo direction; per-variation color and decoration differences come later.",
+      styleRefImage,
+      compositionRefImage,
+      fontSketchImage,
+      null
+    )
+  );
+  return { strategy, fontSketchProfile: null };
 };
 
 const createImageWithFallback = async (
@@ -384,58 +418,25 @@ export const generateLogoConcept = async (
   variationHint: string,
   styleRefImage: string | null,
   compositionRefImage: string | null,
-  fontSketchImage: string | null
+  fontSketchImage: string | null,
+  sharedContext?: LogoGenerationContext
 ): Promise<string> => {
   const client = getClient();
-  const fontSketchProfile = await analyzeFontSketchProfile(client, fontSketchImage);
 
-  const plannerInput: any[] = [
-    {
-      role: "system",
-      content:
-        "You plan visual generation strategy for logo design tasks. Return strict JSON only.",
-    },
-    {
-      role: "user",
-      content: [
-        {
-          type: "input_text",
-          text: buildStrategyPrompt(
-            userPrompt,
-            config,
-            variationHint,
-            Boolean(styleRefImage),
-            Boolean(compositionRefImage),
-            Boolean(fontSketchImage),
-            fontSketchProfile
-          ),
-        },
-      ],
-    },
-  ];
-
-  if (compositionRefImage) {
-    plannerInput[1].content.push({
-      type: "input_image",
-      image_url: compositionRefImage,
-    });
-  }
-
-  if (fontSketchImage) {
-    plannerInput[1].content.push({
-      type: "input_image",
-      image_url: fontSketchImage,
-    });
-  }
-
-  if (styleRefImage) {
-    plannerInput[1].content.push({
-      type: "input_image",
-      image_url: styleRefImage,
-    });
-  }
-
-  const strategy = await createPlannerStrategy(client, plannerInput);
+  const strategy =
+    sharedContext?.strategy ??
+    (await createPlannerStrategy(
+      client,
+      buildPlannerInput(
+        userPrompt,
+        config,
+        variationHint,
+        styleRefImage,
+        compositionRefImage,
+        fontSketchImage,
+        null
+      )
+    ));
 
   const imageInput: any[] = [
     {
@@ -453,7 +454,7 @@ export const generateLogoConcept = async (
             userPrompt,
             variationHint,
             Boolean(fontSketchImage),
-            fontSketchProfile
+            null
           ),
         },
       ],

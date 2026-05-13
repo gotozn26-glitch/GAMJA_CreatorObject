@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { LogoVariation, DesignConfig } from './types';
 import Sidebar from './components/Sidebar';
 import LogoCard from './components/LogoCard';
-import { generateLogoConcept, editLogoWithMask } from './services/openaiService';
+import { generateLogoConcept, editLogoWithMask, prepareLogoGenerationContext, type LogoGenerationContext } from './services/openaiService';
 
 const App: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -125,7 +125,7 @@ const App: React.FC = () => {
     };
     const randomColorDirectives = buildDistinctColorDirectives();
 
-    const generateSingle = async (id: string, index: number) => {
+    const generateSingle = async (id: string, index: number, shared?: LogoGenerationContext) => {
       if (activeRequests.current.has(id)) return;
       activeRequests.current.add(id);
 
@@ -170,7 +170,8 @@ const App: React.FC = () => {
           variationHint, 
           styleRef, 
           promptImage,
-          config.fontSketchImage || null
+          config.fontSketchImage || null,
+          shared
         );
         setVariations(prev => prev.map(v => v.id === id ? { ...v, imageUrl, prompt, loading: false, error: '' } : v));
       } catch (err) {
@@ -195,7 +196,16 @@ const App: React.FC = () => {
     } else {
       // Generate All (cost-friendly: 2 results only)
       const ids = ['01', '02'];
-      await Promise.all(ids.map((id, index) => generateSingle(id, index)));
+      const styleRefForPlan =
+        config.referenceImages.find((img) => img !== '') || null;
+      const shared = await prepareLogoGenerationContext(
+        prompt,
+        config,
+        promptImage,
+        config.fontSketchImage || null,
+        styleRefForPlan
+      );
+      await Promise.all(ids.map((id, index) => generateSingle(id, index, shared)));
       setIsGenerating(false);
     }
   };
