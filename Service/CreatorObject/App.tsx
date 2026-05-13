@@ -68,6 +68,7 @@ const AppContent: React.FC = () => {
 
     setAdsenseClientId(clientId);
 
+    // adBreak는 H5/Ad Placement 등 일부 환경에서만 노출됩니다. 일반 디스플레이 AdSense만 쓰면 없을 수 있음.
     if (typeof window.adBreak === 'function') {
       setIsAdSdkReady(true);
       try {
@@ -86,7 +87,7 @@ const AppContent: React.FC = () => {
     script.crossOrigin = 'anonymous';
     script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(clientId)}`;
     script.onload = () => {
-      setIsAdSdkReady(typeof window.adBreak === 'function');
+      setIsAdSdkReady(true);
       try {
         window.adConfig?.({
           preloadAdBreaks: 'on',
@@ -137,7 +138,7 @@ const AppContent: React.FC = () => {
       const invokeAdBreak = () => {
         const adBreak = window.adBreak;
         if (typeof adBreak !== 'function') {
-          resolve(false);
+          resolve(true);
           return;
         }
 
@@ -191,7 +192,7 @@ const AppContent: React.FC = () => {
 
         if (Date.now() >= waitUntil) {
           window.clearInterval(poll);
-          resolve(false);
+          resolve(true);
         }
       }, 100);
     });
